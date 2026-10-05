@@ -1,0 +1,65 @@
+Análise dos Questionamentos sobre a Solução Concorrente
+
+PERGUNTA 1: Houve compartilhamento de memória entre as diferentes threads filhas e mãe?
+
+SIM, houve compartilhamento de memória. Especificamente
+
+- self.semester_registry, dicionário que armazena as notas de todos os alunos
+- self.highest_grades, dicionário que armazena a maior nota de cada turma
+
+No C é a mesma coisa com o vetor registry e o vetor highest_grades dentro da struct semester, que é passada por ponteiro para todas as threads.
+
+Essas estruturas são acessadas por todas as threads filhas (professores)
+e pela thread principal, que faz a leitura para exibição.
+
+
+PERGUNTA 2: Isso pode levar a condições de corrida?
+
+NESTE CASO ESPECÍFICO, NÃO há risco de condições de corrida pelos seguintes
+motivos.
+
+- CADA THREAD ESCREVE EM POSIÇÕES DIFERENTES:
+  * semester_registry, cada thread escreve apenas nos alunos da sua turma e
+    nenhum aluno pertence a duas turmas
+  * highest_grades, cada thread escreve na posição do seu class_id
+    e cada turma tem uma posição diferente
+
+- NENHUMA THREAD ATUALIZA O MESMO ESPAÇO DE MEMÓRIA que outra thread
+
+- A maior nota é calculada numa variável local da thread e só no final é
+  guardada na estrutura compartilhada
+
+- A thread principal só faz LEITURA após todas as threads terminarem
+  por causa do join(), então não há leitura concorrente com escrita
+
+
+PERGUNTA 3: As múltiplas threads estão atualizando o mesmo espaço na memória?
+
+NÃO. Cada thread processa uma turma diferente, e cada turma tem
+- Seu próprio conjunto de alunos
+- Sua própria posição em highest_grades
+
+Não há overlap entre as regiões de memória escritas pelas threads.
+
+
+PERGUNTA 4: Temos algum problema na solução desenvolvida? Por que sim ou não?
+
+A solução NÃO TEM PROBLEMAS DE CONCORRÊNCIA para este cenário específico,
+mas é importante notar
+
+POR QUE NÃO TEM PROBLEMA
+- Os dados de cada turma ficam isolados
+- Uso correto de join() para sincronização no final
+- Cada thread trabalha com dados independentes
+
+POTENCIAIS PROBLEMAS SE O CENÁRIO MUDASSE
+- Se duas threads pudessem processar a mesma turma, haveria condição de corrida
+- Se as threads atualizassem um contador compartilhado, precisaria de lock
+- Se a thread principal lesse durante a execução, veria dados incompletos.
+  Isso acontecia no código base em C, que não tinha pthread_join e mostrou
+  todas as notas como None
+
+CONCLUSÃO
+A solução atual é segura e não apresenta condições de corrida porque
+cada thread só modifica os dados da sua turma. O compartilhamento
+de memória existe, mas é feito de forma controlada e sem conflitos.
