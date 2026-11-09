@@ -1,0 +1,7 @@
+A imagem foi dividida em faixas de linhas e cada thread processa uma parte diferente. O resto da divisão foi espalhado entre as primeiras threads para equilibrar o trabalho. O processador da máquina roda até 8 threads ao mesmo tempo.
+
+A versão concorrente ficou bem mais rápida que a serial. Na 14MB_noise o tempo caiu de 92 para 29 segundos com 8 threads, e na jotinha_noise de 22 para 7 segundos. O tempo user ficou maior que o real, mostrando que as threads rodaram em paralelo.
+
+Até 4 threads o ganho é grande, com 8 já é pequeno por causa da disputa por memória e processador, e com 16 o tempo piora porque há mais threads do que o processador consegue rodar e aumenta o custo de criar e esperar as threads. Na small_sample isso aparece mais porque o trabalho é pouco.
+
+Na Etapa 2 cada thread conta os pixels alterados e iguais da sua faixa, então não há condição de corrida e não foi preciso semáforo. Depois do join a main soma os contadores e imprime os totais.
