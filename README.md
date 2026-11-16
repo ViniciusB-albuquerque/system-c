@@ -1,8 +1,4 @@
-git config --global user.name ""
-git config --global user.email ""
-
-mkdir -p ~/conco && cd ~/conco
-git clone https://github.com/giovannifs/fpc.git   # se ja tiver: cd fpc && git pull && cd ..
+git clone https://github.com/giovannifs/fpc.git 
 
 git clone git@github.com:USUARIO/REPO_DA_DUPLA.git
 cp -r fpc...
